@@ -11,7 +11,7 @@ final public class MemoryStorage {
 
   // MARK: - Initialization
 
-  init(config: MemoryConfig) {
+  public init(config: MemoryConfig) {
     self.config = config
     self.cache.countLimit = Int(config.countLimit)
   }
