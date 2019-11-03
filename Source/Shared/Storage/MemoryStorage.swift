@@ -7,6 +7,8 @@ public class MemoryStorage<T>: StorageAware {
   /// Configuration
   fileprivate let config: MemoryConfig
 
+  fileprivate let lock = NSLock()
+    
   public init(config: MemoryConfig) {
     self.config = config
     //self.cache.countLimit = Int(config.countLimit)
@@ -16,6 +18,9 @@ public class MemoryStorage<T>: StorageAware {
 
 extension MemoryStorage {
   public func setObject(_ object: T, forKey key: String, expiry: Expiry? = nil) {
+    lock.lock()
+    defer { lock.unlock() }
+    
     let capsule = MemoryCapsule(value: object, expiry: .date(expiry?.date ?? config.expiry.date))
     //cache.setObject(capsule, forKey: NSString(string: key))
     cache[key] = capsule
@@ -23,6 +28,8 @@ extension MemoryStorage {
   }
 
   public func removeAll() {
+    lock.lock()
+    defer { lock.unlock() }
     cache.removeAll()
     //cache.removeAllObjects()
     keys.removeAll()
@@ -36,6 +43,8 @@ extension MemoryStorage {
   }
 
   public func removeObjectIfExpired(forKey key: String) {
+    lock.lock()
+    defer { lock.unlock() }
     if let capsule = cache[key], capsule.expiry.isExpired {
       removeObject(forKey: key)
     }
